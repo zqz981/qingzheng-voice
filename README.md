@@ -2,35 +2,65 @@
 
 给清正在 Mac 上用的系统级中英语音输入。菜单栏常驻：说话 → 本地转写 → 整理文本 → 插入当前应用光标处。不是拼音输入法。
 
-## 需要什么
+## 代码在哪（为什么聊天里看不到）
 
-- macOS 14 或更高（macOS 26+ 会用设备端 `SpeechAnalyzer`，更早系统走 `SFSpeechRecognizer`）
-- Xcode 26 或更高（才能编译新的 Speech API）
-- 麦克风、语音识别、辅助功能三项权限
+源码在 **git 仓库** 里，不在计划文档里。聊天或 Project 文档只说明产品，真正的 Swift 文件是：
 
-## 在 Mac 上运行
+```
+QingzhengVoice.xcodeproj          ← 用 Xcode 打开这个
+QingzhengVoice/
+  QingzhengVoiceApp.swift         ← 入口、菜单栏
+  AppModel.swift                  ← 录音/转写/插入流程
+  MenuBarView.swift / SettingsView.swift / RecordingHUD.swift
+  HotkeyManager.swift             ← Control-Option-空格
+  ModernSpeechEngine.swift        ← macOS 26 本地转写
+  LegacySpeechEngine.swift        ← 更早系统的转写
+  TextPolisher.swift              ← 整理文本
+  TextInserter.swift              ← 粘贴到当前应用
+```
+
+分支名：`cursor/qingzheng-voice-input-dd1d`。在 Cursor 左栏切到这个分支，或打开资源管理器里的 `QingzhengVoice/` 文件夹。若还没有自己的 GitHub/Origin 仓库，先点 **Create repo**，再 Clone 到 Mac 上打开。
+
+## 怎么编辑
+
+**日常改功能：Xcode（推荐）**
 
 ```bash
 open QingzhengVoice.xcodeproj
 ```
 
-1. 在 Xcode 里选自己的 Signing Team（或 Sign to Run Locally）。
-2. Run（⌘R）。菜单栏出现波形/麦克风图标。
-3. 点图标，按「授予权限」，并在系统设置里勾选「清正语音」。
-4. 第一次说中文时，系统可能下载设备端语音模型，需要网络一次。
-5. 把光标放到 Notes、浏览器、聊天框等目标里，按 **Control-Option-空格** 开始，说完再按一次。文本会粘贴到光标处。
+左侧 Project Navigator 就是全部 Swift 代码。改完 ⌘R 运行。
 
-没有 API Key 也能用完整流程：整理器默认把「句号 / 逗号 / 换行」等口播指令变成标点，并去掉常见口头禅。若要更像书面语，打开设置，填 OpenAI 兼容的 Base URL、Model 和 Key（官方接口或 DeepSeek 均可）。
+**也可以用 Cursor 编辑 `.swift` 文件**，但运行、签名、打包仍要 Xcode。
 
-## 这一刀包含什么
+## 需要什么
 
-- 全局热键开始/结束录音，不抢当前应用焦点
-- 本地优先语音识别，中文为主、英文可说
-- 可插拔文本整理：本地规则 / Apple Intelligence / OpenAI 兼容接口
-- 剪贴板 + ⌘V 插入焦点应用，并恢复原来的剪贴板
+- 一台 Mac（这是原生 App，不能在网页里预览）
+- macOS 14 或更高（macOS 26+ 走 `SpeechAnalyzer`，更早走 `SFSpeechRecognizer`）
+- Xcode 26 或更高
+- 麦克风、语音识别、辅助功能三项权限
 
-## 这一刀不包含什么
+## 运行
 
-- InputMethodKit 拼音输入法
-- 内置 whisper.cpp 模型（下一步才接）
-- 自定义快捷键面板、登录时启动
+1. Xcode 顶部 Signing & Capabilities 选自己的 Team（没有开发者账号就选 Sign to Run Locally）。
+2. ⌘R。菜单栏出现波形/麦克风图标。
+3. 点图标 →「授予权限」，系统设置里勾选「清正语音」。
+4. 光标放到 Notes 等输入框，按 **Control-Option-空格** 说话，再按一次插入。
+
+没有 API Key 也能用：本地规则会处理「句号 / 逗号 / 换行」。书面语整理可在设置里填 OpenAI 兼容的 Base URL / Model / Key。
+
+## 怎么打包成 .app
+
+1. Xcode 菜单 **Product → Archive**（先把 scheme 设成 Any Mac / My Mac，配置 Release）。
+2. Organizer 出现归档后，点 **Distribute App**。
+3. 自己用选 **Copy App**，导出文件夹里就是 `QingzhengVoice.app`，拖到「应用程序」即可。
+4. 要发给别人：需要 Apple Developer 账号，选 Developer ID 签名，否则别人打开会提示未验证开发者（系统设置 → 隐私与安全性里仍可「仍要打开」）。
+
+命令行等价：
+
+```bash
+xcodebuild -scheme QingzhengVoice -configuration Release -archivePath build/QingzhengVoice.xcarchive archive
+xcodebuild -exportArchive -archivePath build/QingzhengVoice.xcarchive -exportPath dist -exportOptionsPlist ExportOptions.plist
+```
+
+本地自己用不必走命令行，Archive + Copy App 就够。
