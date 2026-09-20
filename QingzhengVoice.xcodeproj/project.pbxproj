@@ -1,0 +1,306 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		8B0000000000000000000001 /* QingzhengVoiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000001 /* QingzhengVoiceApp.swift */; };
+		8B0000000000000000000002 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000002 /* AppModel.swift */; };
+		8B0000000000000000000003 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000003 /* MenuBarView.swift */; };
+		8B0000000000000000000004 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000004 /* SettingsView.swift */; };
+		8B0000000000000000000005 /* RecordingHUD.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000005 /* RecordingHUD.swift */; };
+		8B0000000000000000000006 /* HotkeyManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000006 /* HotkeyManager.swift */; };
+		8B0000000000000000000007 /* SpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000007 /* SpeechEngine.swift */; };
+		8B0000000000000000000008 /* ModernSpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000008 /* ModernSpeechEngine.swift */; };
+		8B0000000000000000000009 /* LegacySpeechEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000009 /* LegacySpeechEngine.swift */; };
+		8B000000000000000000000A /* AudioBufferConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000A /* AudioBufferConverter.swift */; };
+		8B000000000000000000000B /* TextPolisher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000B /* TextPolisher.swift */; };
+		8B000000000000000000000C /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000C /* TextInserter.swift */; };
+		8B000000000000000000000D /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000D /* SettingsStore.swift */; };
+		8B000000000000000000000E /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000E /* Permissions.swift */; };
+		8B000000000000000000000F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000011 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		8A0000000000000000000001 /* QingzhengVoiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QingzhengVoiceApp.swift; sourceTree = "<group>"; };
+		8A0000000000000000000002 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		8A0000000000000000000003 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		8A0000000000000000000004 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		8A0000000000000000000005 /* RecordingHUD.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordingHUD.swift; sourceTree = "<group>"; };
+		8A0000000000000000000006 /* HotkeyManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HotkeyManager.swift; sourceTree = "<group>"; };
+		8A0000000000000000000007 /* SpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechEngine.swift; sourceTree = "<group>"; };
+		8A0000000000000000000008 /* ModernSpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModernSpeechEngine.swift; sourceTree = "<group>"; };
+		8A0000000000000000000009 /* LegacySpeechEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacySpeechEngine.swift; sourceTree = "<group>"; };
+		8A000000000000000000000A /* AudioBufferConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBufferConverter.swift; sourceTree = "<group>"; };
+		8A000000000000000000000B /* TextPolisher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextPolisher.swift; sourceTree = "<group>"; };
+		8A000000000000000000000C /* TextInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserter.swift; sourceTree = "<group>"; };
+		8A000000000000000000000D /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		8A000000000000000000000E /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
+		8A000000000000000000000F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8A0000000000000000000010 /* QingzhengVoice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QingzhengVoice.entitlements; sourceTree = "<group>"; };
+		8A0000000000000000000011 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8A0000000000000000000012 /* QingzhengVoice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = QingzhengVoice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8C0000000000000000000002 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8D0000000000000000000001 = {
+			isa = PBXGroup;
+			children = (
+				8D0000000000000000000002 /* QingzhengVoice */,
+				8D0000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8D0000000000000000000002 /* QingzhengVoice */ = {
+			isa = PBXGroup;
+			children = (
+				8A0000000000000000000001 /* QingzhengVoiceApp.swift */,
+				8A0000000000000000000002 /* AppModel.swift */,
+				8A0000000000000000000003 /* MenuBarView.swift */,
+				8A0000000000000000000004 /* SettingsView.swift */,
+				8A0000000000000000000005 /* RecordingHUD.swift */,
+				8A0000000000000000000006 /* HotkeyManager.swift */,
+				8A0000000000000000000007 /* SpeechEngine.swift */,
+				8A0000000000000000000008 /* ModernSpeechEngine.swift */,
+				8A0000000000000000000009 /* LegacySpeechEngine.swift */,
+				8A000000000000000000000A /* AudioBufferConverter.swift */,
+				8A000000000000000000000B /* TextPolisher.swift */,
+				8A000000000000000000000C /* TextInserter.swift */,
+				8A000000000000000000000D /* SettingsStore.swift */,
+				8A000000000000000000000E /* Permissions.swift */,
+				8A0000000000000000000011 /* Assets.xcassets */,
+				8A000000000000000000000F /* Info.plist */,
+				8A0000000000000000000010 /* QingzhengVoice.entitlements */,
+			);
+			path = QingzhengVoice;
+			sourceTree = "<group>";
+		};
+		8D0000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8A0000000000000000000012 /* QingzhengVoice.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8E0000000000000000000001 /* QingzhengVoice */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8F0000000000000000000003 /* Build configuration list for PBXNativeTarget "QingzhengVoice" */;
+			buildPhases = (
+				8C0000000000000000000001 /* Sources */,
+				8C0000000000000000000002 /* Frameworks */,
+				8C0000000000000000000003 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = QingzhengVoice;
+			productName = QingzhengVoice;
+			productReference = 8A0000000000000000000012 /* QingzhengVoice.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8E0000000000000000000000 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					8E0000000000000000000001 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = 8F0000000000000000000001 /* Build configuration list for PBXProject "QingzhengVoice" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = zh-Hans;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				"zh-Hans",
+			);
+			mainGroup = 8D0000000000000000000001;
+			productRefGroup = 8D0000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8E0000000000000000000001 /* QingzhengVoice */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8C0000000000000000000003 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B000000000000000000000F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8C0000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8B0000000000000000000001 /* QingzhengVoiceApp.swift in Sources */,
+				8B0000000000000000000002 /* AppModel.swift in Sources */,
+				8B0000000000000000000003 /* MenuBarView.swift in Sources */,
+				8B0000000000000000000004 /* SettingsView.swift in Sources */,
+				8B0000000000000000000005 /* RecordingHUD.swift in Sources */,
+				8B0000000000000000000006 /* HotkeyManager.swift in Sources */,
+				8B0000000000000000000007 /* SpeechEngine.swift in Sources */,
+				8B0000000000000000000008 /* ModernSpeechEngine.swift in Sources */,
+				8B0000000000000000000009 /* LegacySpeechEngine.swift in Sources */,
+				8B000000000000000000000A /* AudioBufferConverter.swift in Sources */,
+				8B000000000000000000000B /* TextPolisher.swift in Sources */,
+				8B000000000000000000000C /* TextInserter.swift in Sources */,
+				8B000000000000000000000D /* SettingsStore.swift in Sources */,
+				8B000000000000000000000E /* Permissions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		8F0000000000000000000010 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_TESTABILITY = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8F0000000000000000000011 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		8F0000000000000000000012 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QingzhengVoice/QingzhengVoice.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = QingzhengVoice/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qingzheng.voice;
+				PRODUCT_NAME = QingzhengVoice;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		8F0000000000000000000013 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = QingzhengVoice/QingzhengVoice.entitlements;
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = QingzhengVoice/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.qingzheng.voice;
+				PRODUCT_NAME = QingzhengVoice;
+				SDKROOT = macosx;
+				SUPPORTED_PLATFORMS = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8F0000000000000000000001 /* Build configuration list for PBXProject "QingzhengVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F0000000000000000000010 /* Debug */,
+				8F0000000000000000000011 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8F0000000000000000000003 /* Build configuration list for PBXNativeTarget "QingzhengVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8F0000000000000000000012 /* Debug */,
+				8F0000000000000000000013 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8E0000000000000000000000 /* Project object */;
+}
