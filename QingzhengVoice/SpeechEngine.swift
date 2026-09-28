@@ -3,6 +3,7 @@ import Speech
 
 @MainActor
 protocol SpeechEngine: AnyObject {
+    var maximumRecordingSeconds: TimeInterval { get }
     func prepareLocale(_ locale: Locale, onProgress: @escaping (Double) -> Void) async throws -> Double?
     func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws
     func stop() async throws -> String

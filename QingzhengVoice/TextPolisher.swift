@@ -43,13 +43,10 @@ struct MockPolisher: TextPolisher {
 
     static func normalize(_ raw: String) -> String {
         var text = raw.trimmingCharacters(in: .whitespacesAndNewlines)
-        let spoken: [(String, String)] = [
+        let chinese: [(String, String)] = [
             ("新段落", "\n\n"),
-            ("new paragraph", "\n\n"),
             ("换行", "\n"),
             ("換行", "\n"),
-            ("new line", "\n"),
-            ("newline", "\n"),
             ("句号", "。"),
             ("句號", "。"),
             ("逗号", "，"),
@@ -66,7 +63,12 @@ struct MockPolisher: TextPolisher {
             ("分号", "；"),
             ("分號", "；"),
             ("省略号", "……"),
-            ("省略號", "……"),
+            ("省略號", "……")
+        ]
+        let english: [(String, String)] = [
+            ("new paragraph", "\n\n"),
+            ("new line", "\n"),
+            ("newline", "\n"),
             ("question mark", "?"),
             ("exclamation mark", "!"),
             ("exclamation point", "!"),
@@ -76,8 +78,16 @@ struct MockPolisher: TextPolisher {
             ("colon", ":"),
             ("semicolon", ";")
         ]
-        for (from, to) in spoken {
-            text = text.replacingOccurrences(of: from, with: to, options: .caseInsensitive)
+        for (from, to) in chinese {
+            text = text.replacingOccurrences(of: from, with: to)
+        }
+        for (from, to) in english {
+            let pattern = "\\b\(NSRegularExpression.escapedPattern(for: from))\\b"
+            text = text.replacingOccurrences(
+                of: pattern,
+                with: to,
+                options: [.regularExpression, .caseInsensitive]
+            )
         }
         for filler in ["嗯嗯", "嗯", "啊", "呃", "那个", "um", "uh"] {
             text = text.replacingOccurrences(of: " \(filler) ", with: " ", options: .caseInsensitive)

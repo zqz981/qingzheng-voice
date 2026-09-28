@@ -1,6 +1,5 @@
 import AppKit
 import ApplicationServices
-import Carbon
 import Foundation
 
 struct FocusTarget {
@@ -42,17 +41,25 @@ struct FocusTarget {
             app: front,
             element: element,
             role: role,
-            isSecureField: secure || IsSecureEventInputEnabled(),
+            isSecureField: secure,
             isOwnApp: own
         )
     }
 
     func insertViaAccessibility(_ text: String) -> Bool {
         guard canUseAccessibilityTyping, let element else { return false }
-        if setAttribute(element, kAXSelectedTextAttribute as String, text as CFTypeRef) {
+        _ = setAttribute(element, kAXFocusedAttribute as String, kCFBooleanTrue)
+        let before = Self.stringAttribute(element, kAXValueAttribute as String) ?? ""
+        if setAttribute(element, kAXSelectedTextAttribute as String, text as CFTypeRef),
+           committed(element, text, previous: before) {
             return true
         }
-        return spliceValue(element, text)
+        return spliceValue(element, text) && committed(element, text, previous: before)
+    }
+
+    private func committed(_ element: AXUIElement, _ text: String, previous: String) -> Bool {
+        guard let now = Self.stringAttribute(element, kAXValueAttribute as String) else { return false }
+        return now != previous && now.contains(text)
     }
 
     private func spliceValue(_ element: AXUIElement, _ text: String) -> Bool {

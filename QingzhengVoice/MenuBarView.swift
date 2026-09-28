@@ -129,11 +129,11 @@ struct MenuBarView: View {
             Button {
                 Task { await model.toggleRecording() }
             } label: {
-                Text(model.phase == .recording ? "结束并插入" : "开始说话")
+                Text(model.phase == .recording ? "结束并插入" : (model.phase == .arming ? "取消" : "开始说话"))
                     .frame(maxWidth: .infinity)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(model.phase.isBusy && model.phase != .recording)
+            .disabled(model.phase.isBusy && model.phase != .recording && model.phase != .arming)
             .keyboardShortcut(.space, modifiers: [.control, .option])
 
             Toggle("整理文本", isOn: $settings.polishEnabled)

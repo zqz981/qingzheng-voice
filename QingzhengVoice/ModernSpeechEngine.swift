@@ -5,9 +5,10 @@ import Speech
 @available(macOS 26.0, *)
 @MainActor
 final class ModernSpeechEngine: SpeechEngine {
+    let maximumRecordingSeconds: TimeInterval = 300
     private var analyzer: SpeechAnalyzer?
+    private var parked: SpeechAnalyzer?
     private var transcriber: SpeechTranscriber?
-    private var warmTranscriber: SpeechTranscriber?
     private var warmFormat: AVAudioFormat?
     private var warmLocale: Locale?
     private var audioEngine: AVAudioEngine?
@@ -23,32 +24,27 @@ final class ModernSpeechEngine: SpeechEngine {
         let resolved = try await resolve(locale)
         let transcriber = makeTranscriber(resolved)
         let downloaded = try await ensureModel(for: transcriber, locale: resolved, onProgress: onProgress)
-        warmTranscriber = transcriber
         warmLocale = resolved
         if let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]) {
             warmFormat = format
             let analyzer = makeAnalyzer(transcriber)
-            try await analyzer.prepareToAnalyze(in: format)
+            try? await analyzer.prepareToAnalyze(in: format)
+            parked = analyzer
         }
         return downloaded
     }
 
     func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws {
-        cancelSession(keepWarm: true)
+        cancelSession()
         self.onPartial = onPartial
         finalized = ""
         volatile = ""
 
         let resolved = try await resolve(locale)
-        let transcriber: SpeechTranscriber
-        if let warmTranscriber, let warmLocale, Self.sameLanguage(warmLocale, resolved) {
-            transcriber = warmTranscriber
-        } else {
-            transcriber = makeTranscriber(resolved)
-            _ = try await ensureModel(for: transcriber, locale: resolved, onProgress: { _ in })
-            warmTranscriber = transcriber
-            warmLocale = resolved
+        if warmLocale == nil || !Self.sameLanguage(warmLocale ?? resolved, resolved) {
+            _ = try await prepareLocale(locale, onProgress: { _ in })
         }
+        let transcriber = makeTranscriber(resolved)
         self.transcriber = transcriber
 
         let analyzer = makeAnalyzer(transcriber)
@@ -57,7 +53,7 @@ final class ModernSpeechEngine: SpeechEngine {
         let format = warmFormat ?? await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber])
         guard let format else { throw SpeechFailure.noAudioFormat }
         warmFormat = format
-        try await analyzer.prepareToAnalyze(in: format)
+        try? await analyzer.prepareToAnalyze(in: format)
 
         resultsTask = Task { [weak self] in
             do {
@@ -92,23 +88,18 @@ final class ModernSpeechEngine: SpeechEngine {
         try await analyzer?.finalizeAndFinishThroughEndOfInput()
         try await Task.sleep(for: .milliseconds(250))
         let text = displayText.trimmingCharacters(in: .whitespacesAndNewlines)
-        cancelSession(keepWarm: true)
-        Task { try? await rewarm() }
+        if let analyzer {
+            parked = analyzer
+        }
+        cancelSession()
         return text
     }
 
     func cancel() {
-        cancelSession(keepWarm: true)
-        Task { try? await rewarm() }
+        cancelSession()
     }
 
     private var displayText: String { finalized + volatile }
-
-    private func rewarm() async throws {
-        guard let transcriber = warmTranscriber, let format = warmFormat else { return }
-        let analyzer = makeAnalyzer(transcriber)
-        try await analyzer.prepareToAnalyze(in: format)
-    }
 
     private func makeAnalyzer(_ transcriber: SpeechTranscriber) -> SpeechAnalyzer {
         SpeechAnalyzer(
@@ -191,7 +182,7 @@ final class ModernSpeechEngine: SpeechEngine {
         audioEngine = nil
     }
 
-    private func cancelSession(keepWarm: Bool) {
+    private func cancelSession() {
         stopMic()
         inputContinuation?.finish()
         inputContinuation = nil
@@ -203,17 +194,19 @@ final class ModernSpeechEngine: SpeechEngine {
         analyzerTask = nil
         onPartial = nil
         volatile = ""
-        if !keepWarm {
-            warmTranscriber = nil
-            warmFormat = nil
-            warmLocale = nil
-        }
     }
 
     private static func sameLanguage(_ a: Locale, _ b: Locale) -> Bool {
-        if a.identifier == b.identifier { return true }
         let left = a.identifier.replacingOccurrences(of: "_", with: "-").lowercased()
         let right = b.identifier.replacingOccurrences(of: "_", with: "-").lowercased()
-        return left == right || left.hasPrefix(right.prefix(2)) && right.hasPrefix(left.prefix(2)) && left.contains("zh") == right.contains("zh")
+        if left == right { return true }
+        func bucket(_ id: String) -> String {
+            if id.contains("hant") || id.hasPrefix("zh-tw") || id.hasPrefix("zh-hk") || id.hasPrefix("zh-mo") {
+                return "zh-hant"
+            }
+            if id.hasPrefix("zh") { return "zh-hans" }
+            return String(id.prefix(2))
+        }
+        return bucket(left) == bucket(right)
     }
 }

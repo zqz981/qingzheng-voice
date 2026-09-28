@@ -26,7 +26,7 @@ final class TextInserter {
 
     private func paste(_ text: String, into target: FocusTarget) async throws {
         restore(target)
-        try await Task.sleep(for: .milliseconds(40))
+        try await Task.sleep(for: .milliseconds(120))
         let backup = PasteboardBackup.capture()
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
@@ -36,7 +36,7 @@ final class TextInserter {
         }
         try await Task.sleep(for: .milliseconds(80))
         try postPaste(to: target.app)
-        try await Task.sleep(for: .milliseconds(280))
+        try await Task.sleep(for: .milliseconds(450))
         backup.restore()
     }
 

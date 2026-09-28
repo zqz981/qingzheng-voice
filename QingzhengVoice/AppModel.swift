@@ -21,6 +21,9 @@ final class AppModel: ObservableObject {
     private let hotkey = HotkeyManager()
     private var engine: SpeechEngine = SpeechEngineFactory.make()
     private var insertTarget: FocusTarget?
+    private var lastExternalTarget: FocusTarget?
+    private var focusWatch: Timer?
+    private var stopAfterStart = false
     private var recordingStartedAt: Date?
     private var tick: Timer?
     private var runningTask: Task<Void, Never>?
@@ -36,6 +39,7 @@ final class AppModel: ObservableObject {
 
     enum Phase: Equatable {
         case idle
+        case arming
         case recording
         case transcribing
         case polishing
@@ -53,7 +57,7 @@ final class AppModel: ObservableObject {
 
     var menuBarSymbol: String {
         switch phase {
-        case .recording: return "mic.fill"
+        case .recording, .arming: return "mic.fill"
         case .transcribing, .polishing, .inserting, .downloadingModel: return "ellipsis.circle"
         case .error: return "exclamationmark.triangle.fill"
         case .idle: return "waveform"
@@ -63,6 +67,7 @@ final class AppModel: ObservableObject {
     var hudTitle: String {
         switch phase {
         case .idle: return "清正语音"
+        case .arming: return "正在打开麦克风…"
         case .recording: return "正在听…"
         case .transcribing: return "正在转写…"
         case .polishing: return "正在整理…"
@@ -74,6 +79,7 @@ final class AppModel: ObservableObject {
 
     var hudPlaceholder: String {
         switch phase {
+        case .arming: return "马上开始听，再按一次可取消"
         case .recording: return "对着麦克风说话，再按一次 Control-Option-空格 结束"
         case .downloadingModel:
             if let downloadProgress {
@@ -100,9 +106,11 @@ final class AppModel: ObservableObject {
                 return "辅助功能未开：能转写，但不能写进其它输入框"
             }
             if modelReady {
-                return "模型已就绪。光标放在任意输入框，按 Control-Option-空格"
+                return notice ?? "模型已就绪。光标放在任意输入框，按 Control-Option-空格"
             }
-            return "正在预热本地语音模型…"
+            return notice ?? "正在预热本地语音模型…"
+        case .arming:
+            return "正在打开麦克风"
         case .recording:
             return "录音中，再按一次快捷键结束"
         case .transcribing:
@@ -123,7 +131,10 @@ final class AppModel: ObservableObject {
         hotkey.onTrigger = { [weak self] in
             self?.handleHotkey()
         }
-        hotkey.register()
+        if !hotkey.register() {
+            notice = "Control-Option-空格 已被其它应用占用，快捷键没有注册成功"
+        }
+        watchExternalFocus()
         refreshPermissions()
         Task { await installModelIfNeeded(interactive: false) }
     }
@@ -136,16 +147,22 @@ final class AppModel: ObservableObject {
             Task { await finishRecording() }
             return
         }
+        if phase == .arming {
+            stopAfterStart = true
+            return
+        }
         guard !phase.isBusy else { return }
-        insertTarget = FocusTarget.capture()
+        pinTarget()
         Task { await beginRecording() }
     }
 
     func toggleRecording() async {
         if phase == .recording {
             await finishRecording()
+        } else if phase == .arming {
+            stopAfterStart = true
         } else if !phase.isBusy {
-            insertTarget = FocusTarget.capture()
+            pinTarget()
             await beginRecording()
         }
     }
@@ -193,6 +210,7 @@ final class AppModel: ObservableObject {
             downloadProgress = nil
         } catch {
             modelReady = false
+            notice = error.localizedDescription
             if interactive {
                 fail(error.localizedDescription)
             }
@@ -203,7 +221,7 @@ final class AppModel: ObservableObject {
         notice = nil
         refreshPermissions()
         if insertTarget == nil {
-            insertTarget = FocusTarget.capture()
+            pinTarget()
         }
         guard permissions.microphone else {
             fail("没有麦克风权限。请先点菜单栏「授予权限」，不要在输入框里等弹窗。")
@@ -216,10 +234,8 @@ final class AppModel: ObservableObject {
 
         liveText = ""
         elapsed = 0
-        recordingStartedAt = Date()
-        phase = .recording
+        phase = .arming
         hud.show()
-        startTick()
 
         do {
             try await engine.start(locale: settings.resolvedLocale()) { [weak self] partial in
@@ -228,9 +244,18 @@ final class AppModel: ObservableObject {
                 }
             }
         } catch {
-            stopTick()
+            stopAfterStart = false
             fail(error.localizedDescription)
+            return
         }
+        if stopAfterStart {
+            stopAfterStart = false
+            await finishRecording()
+            return
+        }
+        recordingStartedAt = Date()
+        phase = .recording
+        startTick()
     }
 
     private func finishRecording() async {
@@ -322,7 +347,7 @@ final class AppModel: ObservableObject {
             Task { @MainActor in
                 guard let self, let start = self.recordingStartedAt else { return }
                 self.elapsed = Date().timeIntervalSince(start)
-                if self.elapsed >= 60 {
+                if self.elapsed >= self.engine.maximumRecordingSeconds {
                     await self.finishRecording()
                 }
             }
@@ -332,5 +357,30 @@ final class AppModel: ObservableObject {
     private func stopTick() {
         tick?.invalidate()
         tick = nil
+    }
+
+    private func pinTarget() {
+        let live = FocusTarget.capture()
+        if !live.isOwnApp {
+            lastExternalTarget = live
+            insertTarget = live
+        } else if let lastExternalTarget {
+            insertTarget = lastExternalTarget
+        } else {
+            insertTarget = live
+        }
+    }
+
+    private func watchExternalFocus() {
+        focusWatch?.invalidate()
+        focusWatch = Timer.scheduledTimer(withTimeInterval: 0.35, repeats: true) { [weak self] _ in
+            Task { @MainActor in
+                guard let self, !self.phase.isBusy else { return }
+                let snap = FocusTarget.capture()
+                if !snap.isOwnApp {
+                    self.lastExternalTarget = snap
+                }
+            }
+        }
     }
 }

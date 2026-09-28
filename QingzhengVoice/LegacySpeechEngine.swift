@@ -4,6 +4,7 @@ import Speech
 
 @MainActor
 final class LegacySpeechEngine: SpeechEngine {
+    let maximumRecordingSeconds: TimeInterval = 55
     private var recognizer: SFSpeechRecognizer?
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
@@ -12,6 +13,7 @@ final class LegacySpeechEngine: SpeechEngine {
     private var lastText = ""
     private var onPartial: ((String) -> Void)?
     private var finalWaiter: CheckedContinuation<String, Error>?
+    private var pendingFinal: String?
 
     func prepareLocale(_ locale: Locale, onProgress: @escaping (Double) -> Void) async throws -> Double? {
         guard let recognizer = makeRecognizer(locale) else { throw SpeechFailure.localeUnavailable }
@@ -52,6 +54,7 @@ final class LegacySpeechEngine: SpeechEngine {
                     self.lastText = result.bestTranscription.formattedString
                     self.onPartial?(self.lastText)
                     if result.isFinal {
+                        self.pendingFinal = self.lastText
                         self.finishWaiter(self.lastText)
                     }
                 }
@@ -73,6 +76,11 @@ final class LegacySpeechEngine: SpeechEngine {
     func stop() async throws -> String {
         request?.endAudio()
         stopMic()
+        if let pendingFinal {
+            let text = pendingFinal
+            cancelSession(keepRecognizer: true)
+            return text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
         let text = try await withCheckedThrowingContinuation { continuation in
             finalWaiter = continuation
             Task {
@@ -133,6 +141,7 @@ final class LegacySpeechEngine: SpeechEngine {
         task = nil
         request = nil
         onPartial = nil
+        pendingFinal = nil
         if !keepRecognizer {
             recognizer = nil
         }

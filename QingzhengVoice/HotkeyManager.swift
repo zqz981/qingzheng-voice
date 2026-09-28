@@ -11,7 +11,8 @@ final class HotkeyManager {
         unregister()
     }
 
-    func register() {
+    @discardableResult
+    func register() -> Bool {
         unregister()
         var hotKeyID = EventHotKeyID(signature: fourChar("QZVK"), id: 1)
         let status = RegisterEventHotKey(
@@ -22,7 +23,7 @@ final class HotkeyManager {
             0,
             &hotKeyRef
         )
-        guard status == noErr else { return }
+        guard status == noErr else { return false }
 
         var eventType = EventTypeSpec(
             eventClass: OSType(kEventClassKeyboard),
@@ -37,6 +38,7 @@ final class HotkeyManager {
             userData,
             &handlerRef
         )
+        return true
     }
 
     func unregister() {
