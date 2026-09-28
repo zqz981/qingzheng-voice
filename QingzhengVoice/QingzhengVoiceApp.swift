@@ -35,6 +35,7 @@ private struct MenuBarLabel: View {
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
+        NSApp.setActivationPolicy(.accessory)
         AppModel.shared.start()
     }
 }

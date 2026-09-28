@@ -28,7 +28,7 @@ struct SettingsView: View {
                 Text("Control-Option-空格")
                     .foregroundStyle(.secondary)
             }
-            Text("把光标放在目标应用里，按快捷键说话，再按一次结束。清正语音不会把焦点抢到自己身上。")
+            Text("启动时会预热本地 ASR。请用快捷键唤醒：热键按下的瞬间钉住当前输入框，录音过程不抢焦点。系统文本框走辅助功能写字，浏览器/Electron 等走粘贴。不要用菜单栏按钮对着别人的输入框说话。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
             Button("预下载当前语言的本地模型") {
@@ -36,6 +36,9 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onChange(of: settings.localeIdentifier) { _, _ in
+            Task { await model.installModelIfNeeded(interactive: false) }
+        }
     }
 
     private var polish: some View {
@@ -72,7 +75,7 @@ struct SettingsView: View {
             Button("打开系统隐私设置") {
                 Permissions.openPrivacyRoot()
             }
-            Text("辅助功能只用于向当前应用发送 ⌘V。转写默认在本机完成；只有你选择云端整理时才会把文本（不是音频）发给对应接口。")
+            Text("辅助功能用于：定位当前输入框、直接写字，以及在网页等控件里发送 ⌘V。请在第一次用热键之前就点「授予权限」，避免录音中弹出系统框抢走焦点。")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }

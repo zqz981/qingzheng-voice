@@ -40,6 +40,9 @@ struct MenuBarView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
+            Text(model.modelReady ? "模型就绪" : "预热中")
+                .font(.caption2)
+                .foregroundStyle(model.modelReady ? Color.green : Color.secondary)
         }
     }
 

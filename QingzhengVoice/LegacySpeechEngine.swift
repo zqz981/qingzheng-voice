@@ -14,16 +14,18 @@ final class LegacySpeechEngine: SpeechEngine {
     private var finalWaiter: CheckedContinuation<String, Error>?
 
     func prepareLocale(_ locale: Locale, onProgress: @escaping (Double) -> Void) async throws -> Double? {
-        guard makeRecognizer(locale) != nil else { throw SpeechFailure.localeUnavailable }
+        guard let recognizer = makeRecognizer(locale) else { throw SpeechFailure.localeUnavailable }
+        self.recognizer = recognizer
         return nil
     }
 
     func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws {
-        cancel()
+        cancelSession(keepRecognizer: true)
         self.onPartial = onPartial
         lastText = ""
 
-        guard let recognizer = makeRecognizer(locale) else {
+        let recognizer = self.recognizer ?? makeRecognizer(locale)
+        guard let recognizer else {
             throw SpeechFailure.localeUnavailable
         }
         self.recognizer = recognizer
@@ -80,7 +82,7 @@ final class LegacySpeechEngine: SpeechEngine {
                 }
             }
         }
-        teardown()
+        cancelSession(keepRecognizer: true)
         return text.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
@@ -92,7 +94,7 @@ final class LegacySpeechEngine: SpeechEngine {
             finalWaiter.resume(returning: lastText)
             self.finalWaiter = nil
         }
-        teardown()
+        cancelSession(keepRecognizer: true)
     }
 
     private func makeRecognizer(_ locale: Locale) -> SFSpeechRecognizer? {
@@ -125,10 +127,14 @@ final class LegacySpeechEngine: SpeechEngine {
         }
     }
 
-    private func teardown() {
+    private func cancelSession(keepRecognizer: Bool) {
+        task?.cancel()
+        stopMic()
         task = nil
         request = nil
-        recognizer = nil
         onPartial = nil
+        if !keepRecognizer {
+            recognizer = nil
+        }
     }
 }

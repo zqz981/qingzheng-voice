@@ -21,14 +21,14 @@ final class HUDController {
         )
         panel.isFloatingPanel = true
         panel.level = .statusBar
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary, .ignoresCycle]
         panel.isOpaque = false
         panel.backgroundColor = .clear
         panel.hasShadow = true
         panel.hidesOnDeactivate = false
         panel.becomesKeyOnlyIfNeeded = true
-        panel.ignoresMouseEvents = false
-        panel.isMovableByWindowBackground = true
+        panel.ignoresMouseEvents = true
+        panel.isMovableByWindowBackground = false
         panel.contentView = hosting
         self.panel = panel
         position()

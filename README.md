@@ -16,7 +16,8 @@ QingzhengVoice/
   ModernSpeechEngine.swift        ← macOS 26 本地转写
   LegacySpeechEngine.swift        ← 更早系统的转写
   TextPolisher.swift              ← 整理文本
-  TextInserter.swift              ← 粘贴到当前应用
+  FocusTarget.swift               ← 钉住当前输入框
+  TextInserter.swift              ← 写入焦点控件 / 粘贴
 ```
 
 分支名：`cursor/qingzheng-voice-input-dd1d`。在 Cursor 左栏切到这个分支，或打开资源管理器里的 `QingzhengVoice/` 文件夹。若还没有自己的 GitHub/Origin 仓库，先点 **Create repo**，再 Clone 到 Mac 上打开。
@@ -45,7 +46,9 @@ open QingzhengVoice.xcodeproj
 1. Xcode 顶部 Signing & Capabilities 选自己的 Team（没有开发者账号就选 Sign to Run Locally）。
 2. ⌘R。菜单栏出现波形/麦克风图标。
 3. 点图标 →「授予权限」，系统设置里勾选「清正语音」。
-4. 光标放到 Notes 等输入框，按 **Control-Option-空格** 说话，再按一次插入。
+4. **先点菜单栏「授予权限」**，等菜单显示「模型就绪」。再把光标放到 Notes、Safari、微信等输入框，按 **Control-Option-空格** 说话，再按一次插入。必须用快捷键，不要用菜单里的「开始说话」（那会把焦点留在菜单上）。
+
+启动时会预热本地 ASR（下载中文模型 + `modelRetention: lingering`），所以热键按下后应马上开始听，而不是现场加载。系统文本框优先用辅助功能在光标处写字；Chrome / Electron 等网页框退回对目标进程发送 ⌘V。密码框不会插入。
 
 没有 API Key 也能用：本地规则会处理「句号 / 逗号 / 换行」。书面语整理可在设置里填 OpenAI 兼容的 Base URL / Model / Key。
 

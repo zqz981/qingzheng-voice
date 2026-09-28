@@ -21,6 +21,7 @@
 		8B000000000000000000000C /* TextInserter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000C /* TextInserter.swift */; };
 		8B000000000000000000000D /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000D /* SettingsStore.swift */; };
 		8B000000000000000000000E /* Permissions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A000000000000000000000E /* Permissions.swift */; };
+		8B0000000000000000000013 /* FocusTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000013 /* FocusTarget.swift */; };
 		8B000000000000000000000F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8A0000000000000000000011 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -39,6 +40,7 @@
 		8A000000000000000000000C /* TextInserter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInserter.swift; sourceTree = "<group>"; };
 		8A000000000000000000000D /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
 		8A000000000000000000000E /* Permissions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Permissions.swift; sourceTree = "<group>"; };
+		8A0000000000000000000013 /* FocusTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FocusTarget.swift; sourceTree = "<group>"; };
 		8A000000000000000000000F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		8A0000000000000000000010 /* QingzhengVoice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QingzhengVoice.entitlements; sourceTree = "<group>"; };
 		8A0000000000000000000011 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -81,6 +83,7 @@
 				8A000000000000000000000C /* TextInserter.swift */,
 				8A000000000000000000000D /* SettingsStore.swift */,
 				8A000000000000000000000E /* Permissions.swift */,
+				8A0000000000000000000013 /* FocusTarget.swift */,
 				8A0000000000000000000011 /* Assets.xcassets */,
 				8A000000000000000000000F /* Info.plist */,
 				8A0000000000000000000010 /* QingzhengVoice.entitlements */,
@@ -180,6 +183,7 @@
 				8B000000000000000000000C /* TextInserter.swift in Sources */,
 				8B000000000000000000000D /* SettingsStore.swift in Sources */,
 				8B000000000000000000000E /* Permissions.swift in Sources */,
+				8B0000000000000000000013 /* FocusTarget.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

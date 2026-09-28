@@ -7,6 +7,9 @@ import Speech
 final class ModernSpeechEngine: SpeechEngine {
     private var analyzer: SpeechAnalyzer?
     private var transcriber: SpeechTranscriber?
+    private var warmTranscriber: SpeechTranscriber?
+    private var warmFormat: AVAudioFormat?
+    private var warmLocale: Locale?
     private var audioEngine: AVAudioEngine?
     private var tapInstalled = false
     private var inputContinuation: AsyncStream<AnalyzerInput>.Continuation?
@@ -19,26 +22,42 @@ final class ModernSpeechEngine: SpeechEngine {
     func prepareLocale(_ locale: Locale, onProgress: @escaping (Double) -> Void) async throws -> Double? {
         let resolved = try await resolve(locale)
         let transcriber = makeTranscriber(resolved)
-        return try await ensureModel(for: transcriber, locale: resolved, onProgress: onProgress)
+        let downloaded = try await ensureModel(for: transcriber, locale: resolved, onProgress: onProgress)
+        warmTranscriber = transcriber
+        warmLocale = resolved
+        if let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]) {
+            warmFormat = format
+            let analyzer = makeAnalyzer(transcriber)
+            try await analyzer.prepareToAnalyze(in: format)
+        }
+        return downloaded
     }
 
     func start(locale: Locale, onPartial: @escaping (String) -> Void) async throws {
-        cancel()
+        cancelSession(keepWarm: true)
         self.onPartial = onPartial
         finalized = ""
         volatile = ""
 
         let resolved = try await resolve(locale)
-        let transcriber = makeTranscriber(resolved)
-        _ = try await ensureModel(for: transcriber, locale: resolved, onProgress: { _ in })
+        let transcriber: SpeechTranscriber
+        if let warmTranscriber, let warmLocale, Self.sameLanguage(warmLocale, resolved) {
+            transcriber = warmTranscriber
+        } else {
+            transcriber = makeTranscriber(resolved)
+            _ = try await ensureModel(for: transcriber, locale: resolved, onProgress: { _ in })
+            warmTranscriber = transcriber
+            warmLocale = resolved
+        }
         self.transcriber = transcriber
 
-        let analyzer = SpeechAnalyzer(modules: [transcriber])
+        let analyzer = makeAnalyzer(transcriber)
         self.analyzer = analyzer
 
-        guard let format = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber]) else {
-            throw SpeechFailure.noAudioFormat
-        }
+        let format = warmFormat ?? await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber])
+        guard let format else { throw SpeechFailure.noAudioFormat }
+        warmFormat = format
+        try await analyzer.prepareToAnalyze(in: format)
 
         resultsTask = Task { [weak self] in
             do {
@@ -72,22 +91,31 @@ final class ModernSpeechEngine: SpeechEngine {
         inputContinuation = nil
         try await analyzer?.finalizeAndFinishThroughEndOfInput()
         try await Task.sleep(for: .milliseconds(250))
-        resultsTask?.cancel()
-        analyzerTask?.cancel()
         let text = displayText.trimmingCharacters(in: .whitespacesAndNewlines)
-        teardown()
+        cancelSession(keepWarm: true)
+        Task { try? await rewarm() }
         return text
     }
 
     func cancel() {
-        stopMic()
-        inputContinuation?.finish()
-        resultsTask?.cancel()
-        analyzerTask?.cancel()
-        teardown()
+        cancelSession(keepWarm: true)
+        Task { try? await rewarm() }
     }
 
     private var displayText: String { finalized + volatile }
+
+    private func rewarm() async throws {
+        guard let transcriber = warmTranscriber, let format = warmFormat else { return }
+        let analyzer = makeAnalyzer(transcriber)
+        try await analyzer.prepareToAnalyze(in: format)
+    }
+
+    private func makeAnalyzer(_ transcriber: SpeechTranscriber) -> SpeechAnalyzer {
+        SpeechAnalyzer(
+            modules: [transcriber],
+            options: SpeechAnalyzer.Options(priority: .userInitiated, modelRetention: .lingering)
+        )
+    }
 
     private func resolve(_ locale: Locale) async throws -> Locale {
         let supported = await SpeechTranscriber.supportedLocales
@@ -163,13 +191,23 @@ final class ModernSpeechEngine: SpeechEngine {
         audioEngine = nil
     }
 
-    private func teardown() {
+    private func cancelSession(keepWarm: Bool) {
+        stopMic()
+        inputContinuation?.finish()
+        inputContinuation = nil
+        resultsTask?.cancel()
+        analyzerTask?.cancel()
         analyzer = nil
         transcriber = nil
         resultsTask = nil
         analyzerTask = nil
         onPartial = nil
         volatile = ""
+        if !keepWarm {
+            warmTranscriber = nil
+            warmFormat = nil
+            warmLocale = nil
+        }
     }
 
     private static func sameLanguage(_ a: Locale, _ b: Locale) -> Bool {

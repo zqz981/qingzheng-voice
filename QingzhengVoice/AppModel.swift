@@ -1,6 +1,5 @@
 import Combine
 import Foundation
-import Speech
 import SwiftUI
 
 @MainActor
@@ -15,11 +14,13 @@ final class AppModel: ObservableObject {
     @Published var permissions = PermissionSnapshot()
     @Published var elapsed: TimeInterval = 0
     @Published var downloadProgress: Double?
+    @Published var modelReady = false
 
     let settings = SettingsStore()
     private let hud = HUDController()
     private let hotkey = HotkeyManager()
     private var engine: SpeechEngine = SpeechEngineFactory.make()
+    private var insertTarget: FocusTarget?
     private var recordingStartedAt: Date?
     private var tick: Timer?
     private var runningTask: Task<Void, Never>?
@@ -92,7 +93,16 @@ final class AppModel: ObservableObject {
     var statusLine: String {
         switch phase {
         case .idle:
-            return lastResult.isEmpty ? "按 Control-Option-空格 开始说话" : "上次已插入到当前应用"
+            if !permissions.microphone || !permissions.speech {
+                return "先在菜单栏授予麦克风和语音识别，热键才不会弹出权限框"
+            }
+            if !permissions.accessibility {
+                return "辅助功能未开：能转写，但不能写进其它输入框"
+            }
+            if modelReady {
+                return "模型已就绪。光标放在任意输入框，按 Control-Option-空格"
+            }
+            return "正在预热本地语音模型…"
         case .recording:
             return "录音中，再按一次快捷键结束"
         case .transcribing:
@@ -122,13 +132,20 @@ final class AppModel: ObservableObject {
         let now = Date()
         guard now.timeIntervalSince(lastHotkeyAt) > 0.25 else { return }
         lastHotkeyAt = now
-        Task { await toggleRecording() }
+        if phase == .recording {
+            Task { await finishRecording() }
+            return
+        }
+        guard !phase.isBusy else { return }
+        insertTarget = FocusTarget.capture()
+        Task { await beginRecording() }
     }
 
     func toggleRecording() async {
         if phase == .recording {
             await finishRecording()
         } else if !phase.isBusy {
+            insertTarget = FocusTarget.capture()
             await beginRecording()
         }
     }
@@ -136,6 +153,10 @@ final class AppModel: ObservableObject {
     func retryLastInsert() {
         let text = lastResult.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
+        let current = FocusTarget.capture()
+        if !current.isOwnApp {
+            insertTarget = current
+        }
         Task { await insert(text) }
     }
 
@@ -152,6 +173,7 @@ final class AppModel: ObservableObject {
 
     func installModelIfNeeded(interactive: Bool) async {
         do {
+            modelReady = false
             if let progress = try await engine.prepareLocale(settings.resolvedLocale(), onProgress: { [weak self] value in
                 Task { @MainActor in
                     self?.downloadProgress = value
@@ -163,12 +185,14 @@ final class AppModel: ObservableObject {
             }) {
                 downloadProgress = progress
             }
+            modelReady = true
             if phase == .downloadingModel {
                 phase = .idle
                 hud.hide(after: 0.6)
             }
             downloadProgress = nil
         } catch {
+            modelReady = false
             if interactive {
                 fail(error.localizedDescription)
             }
@@ -177,19 +201,16 @@ final class AppModel: ObservableObject {
 
     private func beginRecording() async {
         notice = nil
-        if !Permissions.microphoneGranted {
-            _ = await Permissions.requestMicrophone()
-        }
-        if SFSpeechRecognizer.authorizationStatus() != .authorized {
-            _ = await Permissions.requestSpeech()
-        }
         refreshPermissions()
+        if insertTarget == nil {
+            insertTarget = FocusTarget.capture()
+        }
         guard permissions.microphone else {
-            fail("没有麦克风权限。打开菜单栏窗口，点「授予权限」。")
+            fail("没有麦克风权限。请先点菜单栏「授予权限」，不要在输入框里等弹窗。")
             return
         }
         guard permissions.speech else {
-            fail("没有语音识别权限。打开菜单栏窗口，点「授予权限」。")
+            fail("没有语音识别权限。请先点菜单栏「授予权限」，热键路径不会弹出系统框以免抢焦点。")
             return
         }
 
@@ -260,11 +281,16 @@ final class AppModel: ObservableObject {
         refreshPermissions()
         guard permissions.accessibility else {
             lastResult = text
-            fail("文本已准备好，但没有辅助功能权限，无法贴进其它应用。可先复制，或去系统设置勾选「清正语音」。")
+            fail("文本已准备好，但没有辅助功能权限，无法写进其它输入框。")
+            return
+        }
+        guard let target = insertTarget else {
+            lastResult = text
+            fail(InsertFailure.noTargetField.localizedDescription)
             return
         }
         do {
-            try await TextInserter.shared.insert(text)
+            try await TextInserter.shared.insert(text, into: target)
             phase = .idle
             liveText = text
             hud.hide(after: 1.1)
