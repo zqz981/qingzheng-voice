@@ -2,6 +2,7 @@ import AVFoundation
 import Foundation
 import Speech
 
+#if swift(>=6.2)
 @available(macOS 26.0, *)
 @MainActor
 final class ModernSpeechEngine: SpeechEngine {
@@ -210,3 +211,4 @@ final class ModernSpeechEngine: SpeechEngine {
         return bucket(left) == bucket(right)
     }
 }
+#endif

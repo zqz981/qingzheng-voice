@@ -13,9 +13,11 @@ protocol SpeechEngine: AnyObject {
 enum SpeechEngineFactory {
     @MainActor
     static func make() -> SpeechEngine {
+        #if swift(>=6.2)
         if #available(macOS 26.0, *) {
             return ModernSpeechEngine()
         }
+        #endif
         return LegacySpeechEngine()
     }
 }

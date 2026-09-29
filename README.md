@@ -38,7 +38,7 @@ open QingzhengVoice.xcodeproj
 
 - 一台 Mac（这是原生 App，不能在网页里预览）
 - macOS 14 或更高（macOS 26+ 走 `SpeechAnalyzer`，更早走 `SFSpeechRecognizer`）
-- Xcode 26 或更高
+- Xcode 16.2 或更高。App Store 里的最新 Xcode 需要 macOS 26.6；系统更旧时，到 [Apple Developer 下载页](https://developer.apple.com/download/all/) 安装与当前系统匹配的 Xcode。Xcode 16 会使用 `SFSpeechRecognizer`；Xcode 26 才会编译设备端 `SpeechAnalyzer`。
 - 麦克风、语音识别、辅助功能三项权限
 
 ## 运行
